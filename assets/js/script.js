@@ -5,23 +5,16 @@ const resultsModal = new bootstrap.Modal(document.getElementById("resultsModal")
 document.getElementById("status").addEventListener("click", e => getStatus(e));
 document.getElementById("submit").addEventListener("click", e => postForm(e));
 
-function processOptions(form) {
-    let optArray = [];
+// Clicking the get Status button
 
-    for (let e of form.entries()) {
-        if (e[0] === "options") {
-            optArray.push(e[1]);
-        }
-    }
-
-    form.delete("options");
-
-    form.append("options", optArray.join());
-
-    return form;
-}
-
+/**
+ * Called by event listener on the status button
+ * Connects to API with URL including key
+ * Awaits response and if response ok calls display status function passing returned data
+ * Else throws an error 
+ */
 async function getStatus(e) {
+
     const queryString = `${API_URL}?api_key=${API_KEY}`;
 
     const response = await fetch(queryString);
@@ -34,7 +27,10 @@ async function getStatus(e) {
         throw new Error(data.error);
     }
 }
-
+/**
+ * Called by the getStatus function and passed returned data
+ * Displays data in the modal
+ */
 function displayStatus(data) {
 
     const title = document.getElementById("resultsModalTitle");
@@ -49,6 +45,16 @@ function displayStatus(data) {
     resultsModal.show();
 }
 
+
+// Clicking the submit button on the form
+
+/**
+ * Called by event listener on the submit button
+ * Calls processOptions function to obtain data from the form
+ * Sends form using POST
+ * Awaits response and if response ok calls displayErrors function
+ * Else throws an error
+ */
 async function postForm(e) {
     const form = processOptions (new FormData(document.getElementById("checksform")));
     const response = await fetch(API_URL, {
@@ -68,6 +74,31 @@ async function postForm(e) {
     
 }
 
+/**
+ * Called by postForm function and passed form data
+ * Takes all instances of option key value pairs and converts into a single option 
+ * with a value that contains all values found in a string with each value separated by a comma
+ */
+function processOptions(form) {
+    let optArray = [];
+
+    for (let e of form.entries()) {
+        if (e[0] === "options") {
+            optArray.push(e[1]);
+        }
+    }
+
+    form.delete("options");
+
+    form.append("options", optArray.join());
+
+    return form;
+}
+
+/**
+ * Called by postForm function and passed returned data
+ * Displays data in the modal
+ */
 function displayErrors(data) {
 
     const title = document.getElementById("resultsModalTitle");
